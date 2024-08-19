@@ -1,28 +1,53 @@
 import Image from "next/image";
 import styles from "./singlePost.module.css";
+import PostUser from "@/components/postUser/PostUser";
+import { Suspense } from "react";
+//import { getPost } from "@/lib/data";
 
-const SinglePost = () => {
+const getData = async (slug) => {
+  const res = await fetch(
+    `http://localhost:3000/api/blog/${slug}`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return res.json();
+};
+
+const SinglePost = async ({ params }) => {
+  const { slug } = params;
+
+  //FETCH DATA WITH AN API
+  const post = await getData(slug);
+
+  //FETCH DATA WITHOUT AN API
+  //const post = await getPost(slug);
+
+  
+  
+
   return (
     <div className={styles.container}>
       <div className={styles.imgContainer}>
-        <Image src="/about.png" alt="" fill className={styles.img} />
+        <Image src={post.img} alt="" fill className={styles.img} />
       </div>
       <div className={styles.textContainer}>
-        <h1 className={styles.title}>Title</h1>
+        <h1 className={styles.title}>{post?.title}</h1>
         <div className={styles.detail}>
-          <Image src="/about.png" alt="" width={50} height={50}  className={styles.avatar} />
-          <div className={styles.detailText}>
-            <span className={styles.detailTitle}>Author</span>
-            <span className={styles.detailValue}>John</span>
-          </div>
+       
+          {post && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <PostUser userId={post?.userId} />
+          </Suspense>
+          )}
           <div className={styles.detailText}>
             <span className={styles.detailTitle}>Published</span>
-            <span className={styles.detailValue}>12.12.2022</span>
+            <span className={styles.detailValue}>{post.createdAt.toString().slice(0, 16)}</span>
           </div>
         </div>
-        <div className={styles.content}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, saepe sint fuga, enim laborum aspernatur, eum alias quo ducimus labore eligendi reiciendis incidunt minus a ex placeat? Accusantium, quae quod.
-        </div>
+        <div className={styles.content}>{post.desc}</div>
       </div>
     </div>
   );

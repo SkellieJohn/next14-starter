@@ -1,3 +1,6 @@
+// code from https://github.com/safak/next14-tutorial/tree/main
+
+
 // "use client";
 import Image from "next/image";
 import styles from "./contact.module.css";
